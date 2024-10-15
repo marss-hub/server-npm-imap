@@ -1,0 +1,16 @@
+{
+  "name": "imap-nodejs-myserver",
+  "version": "1.0.0",
+  "description": "learn and test packaje. IMAP client server on NodeJS",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "imap-simple": "^5.1.0",
+    "lodash": "^4.17.21",
+    "mailparser": "^3.7.1"
+  }
+}
