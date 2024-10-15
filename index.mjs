@@ -16,29 +16,29 @@ let config = {
 
 
 
-imapSimple.connect(config).then(function (connection) {
-    return connection.openBox('INBOX').then(function () {
-        var searchCriteria = ['UNSEEN'];
-        var fetchOptions = {
-            bodies: ['HEADER', ''], //  ['HEADER', 'TEXT', ''] - если нужен текст. (но тогда сбщ без текста вызывают падение, лол)
-        };
-        return connection.search(searchCriteria, fetchOptions).then(function (messages) {
-            messages.forEach(function (item) {
-                var all = _.find(item.parts, { "which": "" })
-                var id = item.attributes.uid;
-                var idHeader = "Imap-Id: "+id+"\r\n";
-                simpleParser(idHeader+all.body, (err, mail) => {
-                    // access to the whole mail object
-                    console.log(`\n=================================================\n`)
-                    // console.log(mail)
-                    console.log('mail.from.value.address: ', mail.from.value[0].address)
-                    console.log('mail.subject: ', mail.subject)
-                    console.log('mail.messageId: ', mail.messageId)
-                    // console.log('mail.text: ', mail.text) // не включать. см коммент к fetchOptions -> bodies выше
-                    console.log('id/attributes.uid : ', id)
-                });
-            });
+const connection = await imapSimple.connect(config);
+    await connection.openBox('INBOX');
+    const searchCriteria = ['UNSEEN'];
+    const fetchOptions = {
+        bodies: ['HEADER', ''], //  ['HEADER', 'TEXT', ''] - если нужен текст body. (но тогда сбщ без текста в body вызывают падение, лол)
+    };
+    const messages = await connection.search(searchCriteria, fetchOptions);
+    messages.forEach(function (item) {
+        const all = _.find(item.parts, { "which": "" });
+        const id = item.attributes.uid;
+        const idHeader = "Imap-Id: " + id + "\r\n";
+        simpleParser(idHeader + all.body, (err, mail) => {
+            // access to the whole mail object
+            console.log(`\n=================================================\n`);
+            // console.log(mail)
+            console.log('mail.from.value.address: ', mail.from.value[0].address);
+            console.log('mail.subject: ', mail.subject);
+            console.log('mail.messageId: ', mail.messageId);
+            // console.log('mail.text: ', mail.text) // не включать. см коммент к fetchOptions -> bodies выше
+            console.log('id/attributes.uid : ', id);
         });
     });
-});
 
+//source:
+//https://github.com/chadxz/imap-simple
+//https://github.com/mscdex/node-imap
