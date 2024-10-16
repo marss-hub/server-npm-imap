@@ -59,6 +59,3 @@ const connection = await imapSimple.connect(config);
 //source:
 //https://github.com/chadxz/imap-simple
 //https://github.com/mscdex/node-imap
-
-//TODO:
-// uninstall lodash

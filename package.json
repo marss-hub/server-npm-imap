@@ -10,7 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "imap-simple": "^5.1.0",
-    "lodash": "^4.17.21",
     "mailparser": "^3.7.1"
   }
 }
