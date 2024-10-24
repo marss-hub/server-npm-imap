@@ -20,11 +20,11 @@ export class MailProcessor {
     return this.#connection !== null;
   }
 
-  async run(filtersArr) { //filtersArr - массив классов AbstractMailFilter !!instanceof!!
+  async run(filtersArr) { //filtersArr - массив классов AbstractMailFilter
     if (!this.isConnect()) throw new Error("ERROR")
     
      for (const classFilter of filtersArr) {
-        const filter = new classFilter(this.#connection)
+        const filter = new classFilter(this.#connection) // !!instanceof!!
         await filter.exec()
     };
   }
