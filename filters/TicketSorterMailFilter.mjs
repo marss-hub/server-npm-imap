@@ -1,21 +1,30 @@
 import { simpleParser } from "mailparser";
 import { AbstractMailFilter } from "./AbstractMailFilter.mjs";
 
+/**
+ * Сlass filter sorting letters with the Ticket mark
+ */
 export class TicketSorterMailFilter extends AbstractMailFilter {
+
+  /**
+   * Extend main method of execution
+   */
  async exec() {
     const connection = this.getConnect();
-
     await connection.openBox('INBOX');
 
     const messagesArr = await this.#getAllInboxMails(connection);
-
-    const ticketUidsArr = await this.#getTicketsWithUids(messagesArr); // mb empty arr
+    const ticketUidsArr = await this.#getTicketsWithUids(messagesArr); // mb return empty arr
     await this.#moveTicketMails(connection, ticketUidsArr);
 
-   // closebox !!!
-
+    await connection.closeBox();
   }
 
+  /**
+   * Move mails from ticketsArr to their folders
+   * @param {ImapSimple} connection An instance of ImapSimple
+   * @param {[{uid: number, ticket: string}]} ticketsArr array with uid and tickets from mails with tickets-mark
+   */
   async #moveTicketMails(connection, ticketsArr) {
     if (ticketsArr.length === 0) return;
     const boxesSet = await this.#getBoxesListSet(connection); 
@@ -29,10 +38,13 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
         console.log('add & move : ', item.ticket)
       }
     }
-
-
   }
 
+  /**
+   * Return array of objects with uid and tickets from mails with tickets-mark or empty array
+   * @param {[{attributes: {Object}, parts: {Array.<Object>}, seqNo: {number}}]} msgsArr  array of objects
+   * @returns  {[{uid: number, ticket: string}] | []} array with uid and tickets from mails with tickets-mark or empty array
+   */
   async #getTicketsWithUids(msgsArr) {
    const resultArr = [];
     for (const item of msgsArr) {
@@ -42,17 +54,8 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
       const idHeader = "Imap-Id: " + id + "\r\n";
       const mail = await simpleParser(idHeader + all.body);
 
-
-      // console.log('item.attributes: ', item.attributes);      
-      // console.log('item.attributes.uid: ', item.attributes.uid);
-      // console.log('mail.subject: ', mail.subject);
-      // console.log('mail.messageId: ', mail.messageId);
-      // console.log('=================================================');
-
-
       //processing
-      const mailIsTicket = mail.subject.match(/Ticket-\d+/i); //null or ticketStr
-
+      const mailIsTicket = mail.subject.match(/Ticket-\d+/i); //return null or ticketStr
       if (mailIsTicket !== null) {
         const ticketNormalize = String(mailIsTicket[0]).charAt(0).toUpperCase() + String(mailIsTicket[0]).slice(1).toLowerCase();
         resultArr.push({uid: item.attributes.uid, ticket: ticketNormalize});
@@ -61,6 +64,11 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
     return resultArr;
   }
 
+  /**
+   * Return all mails in Inbox box
+   * @param  {ImapSimple} connection An instance of ImapSimple
+   * @returns {[{attributes: {Object}, parts: {Array.<Object>}, seqNo: {number}}] | []} array of objects with 3 properties or empty array
+   */
   async #getAllInboxMails(connection) {
     // See more https://www.php.net/manual/ru/function.imap-search.php about criteria parameter
     // See more how it IRL write and work https://stackoverflow.com/questions/57557330/how-to-fetch-email-thread-by-messageid-using-imap-in-nodejs
@@ -69,12 +77,16 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
         //A string or Array of strings containing the body part section to fetch. See more https://github.com/mscdex/node-imap
         bodies: [''], //  The entire message (header + body)
     };
-    // array of objects with 3 properties (attributes {Object}, parts {Array.<Object>}, seqNo {number}). can be empty arr here!
+    // array of objects or return empty array
     const messages = await connection.search(searchCriteria, fetchOptions);
     return messages
   }
 
-
+  /**
+   * Return list of mailboxes as Set collection
+   * @param  {ImapSimple} connection An instance of ImapSimple
+   * @returns {Set} mailboxes name collection
+   */
   async #getBoxesListSet(connection) {
     // Returns the full list of mailboxes (folders).
     const boxesList = await connection.getBoxes()
@@ -84,27 +96,23 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
      }
     return boxesSet
   }
-
 }
 
-
-    // Returns the full list of mailboxes (folders).
-    // const boxesList = await connection.getBoxes()
-    // console.log('boxesList', boxesList);
-
-
+ 
     /*
-    messagesArr.forEach(async function (item) {
+      // EXAMPLE PARSE DATA AMD GET MAIN VALUE:
+        for (const item of messagesArr) {
         const all = item.parts.find(item => item.which === "");
 
         const id = item.attributes.uid;
         const idHeader = "Imap-Id: " + id + "\r\n";
         const mail = await simpleParser(idHeader + all.body);
-        // access to the whole mail object
-        console.log(`\n=================================================\n`);
+        // uid of mail:
+        console.log('item.attributes.uid: ', item.attributes.uid);
+        // access to the whole mail object:
         //console.log(mail)
+        // example getting main values:
         console.log('mail.from.value.address: ', mail.from.value[0].address);
         console.log('mail.subject: ', mail.subject);
-        console.log('mail.messageId: ', mail.messageId);
-        //console.log('mail.text: ', mail?.text) 
+        //console.log('mail.text: ', mail?.text) // if body of mail is empty mail?.text not exist
     */

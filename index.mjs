@@ -13,7 +13,8 @@ const config = {
   },
 };
  
-const filtersArrs = [TicketSorterMailFilter]; //filter Classes
+ //filter Classes in order of execution
+const filtersArrs = [TicketSorterMailFilter];
 
 const processor = new MailProcessor(config);
 try {
