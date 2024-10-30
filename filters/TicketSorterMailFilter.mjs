@@ -34,6 +34,7 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
       } else {
         await connection.addBox(item.ticket);
         await connection.moveMessage(item.uid, item.ticket);
+        boxesSet.add(item.ticket);
         console.log("add & move : ", item.ticket);
       }
     }
