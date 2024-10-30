@@ -1,6 +1,7 @@
 import { CONFIGDATA } from "./configData.mjs";
 import { MailProcessor } from "./MailProcessor.mjs";
 import { TicketSorterMailFilter } from "./filters/TicketSorterMailFilter.mjs";
+import { TicketCleanerMailFilter } from "./filters/TicketCleanerMailFilter.mjs";
 
 const config = {
   imap: {
@@ -14,7 +15,7 @@ const config = {
 };
  
  //filter Classes in order of execution
-const filtersArrs = [TicketSorterMailFilter];
+const filtersArrs = [TicketSorterMailFilter, TicketCleanerMailFilter];
 
 const processor = new MailProcessor(config);
 try {
