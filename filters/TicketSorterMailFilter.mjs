@@ -5,13 +5,12 @@ import { AbstractMailFilter } from "./AbstractMailFilter.mjs";
  * Сlass filter sorting letters with the Ticket mark
  */
 export class TicketSorterMailFilter extends AbstractMailFilter {
-
   /**
    * Extend main method of execution
    */
- async exec() {
+  async exec() {
     const connection = this.getConnect();
-    await connection.openBox('INBOX');
+    await connection.openBox("INBOX");
 
     const messagesArr = await this.#getAllInboxMails(connection);
     const ticketUidsArr = await this.#getTicketsWithUids(messagesArr); // mb return empty arr
@@ -27,15 +26,15 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
    */
   async #moveTicketMails(connection, ticketsArr) {
     if (ticketsArr.length === 0) return;
-    const boxesSet = await this.#getBoxesListSet(connection); 
+    const boxesSet = await this.#getBoxesListSet(connection);
     for (const item of ticketsArr) {
       if (boxesSet.has(item.ticket)) {
-       await connection.moveMessage(item.uid, item.ticket);
-       console.log('move : ', item.ticket)
-      } else {
-        await connection.addBox(item.ticket)
         await connection.moveMessage(item.uid, item.ticket);
-        console.log('add & move : ', item.ticket)
+        console.log("move : ", item.ticket);
+      } else {
+        await connection.addBox(item.ticket);
+        await connection.moveMessage(item.uid, item.ticket);
+        console.log("add & move : ", item.ticket);
       }
     }
   }
@@ -46,10 +45,10 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
    * @returns  {[{uid: number, ticket: string}] | []} array with uid and tickets from mails with tickets-mark or empty array
    */
   async #getTicketsWithUids(msgsArr) {
-   const resultArr = [];
+    const resultArr = [];
     for (const item of msgsArr) {
       //parse mail
-      const all = item.parts.find(item => item.which === "");
+      const all = item.parts.find((item) => item.which === "");
       const id = item.attributes.uid;
       const idHeader = "Imap-Id: " + id + "\r\n";
       const mail = await simpleParser(idHeader + all.body);
@@ -57,10 +56,12 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
       //processing
       const mailIsTicket = mail.subject.match(/Ticket-\d+/i); //return null or ticketStr
       if (mailIsTicket !== null) {
-        const ticketNormalize = String(mailIsTicket[0]).charAt(0).toUpperCase() + String(mailIsTicket[0]).slice(1).toLowerCase();
-        resultArr.push({uid: item.attributes.uid, ticket: ticketNormalize});
+        const ticketNormalize =
+          String(mailIsTicket[0]).charAt(0).toUpperCase() +
+          String(mailIsTicket[0]).slice(1).toLowerCase();
+        resultArr.push({ uid: item.attributes.uid, ticket: ticketNormalize });
       }
-    };
+    }
     return resultArr;
   }
 
@@ -72,14 +73,13 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
   async #getAllInboxMails(connection) {
     // See more https://www.php.net/manual/ru/function.imap-search.php about criteria parameter
     // See more how it IRL write and work https://stackoverflow.com/questions/57557330/how-to-fetch-email-thread-by-messageid-using-imap-in-nodejs
-    const searchCriteria = ['ALL']; // ['ALL'], ['FLAGGED'], [['SUBJECT', 'test msg']];
+    const searchCriteria = ["ALL"]; // ['ALL'], ['FLAGGED'], [['SUBJECT', 'test msg']];
     const fetchOptions = {
-        //A string or Array of strings containing the body part section to fetch. See more https://github.com/mscdex/node-imap
-        bodies: [''], //  The entire message (header + body)
+      //A string or Array of strings containing the body part section to fetch. See more https://github.com/mscdex/node-imap
+      bodies: [""], //  The entire message (header + body)
     };
-    // array of objects or return empty array
     const messages = await connection.search(searchCriteria, fetchOptions);
-    return messages
+    return messages;
   }
 
   /**
@@ -89,18 +89,17 @@ export class TicketSorterMailFilter extends AbstractMailFilter {
    */
   async #getBoxesListSet(connection) {
     // Returns the full list of mailboxes (folders).
-    const boxesList = await connection.getBoxes()
+    const boxesList = await connection.getBoxes();
     const boxesSet = new Set();
     for (const box in boxesList) {
-        boxesSet.add(String(box))   
-     }
-    return boxesSet
+      boxesSet.add(String(box));
+    }
+    return boxesSet;
   }
 }
 
- 
-    /*
-      // EXAMPLE PARSE DATA AMD GET MAIN VALUE:
+/*
+      // EXAMPLE PARSE DATA AND GET MAIN VALUE:
         for (const item of messagesArr) {
         const all = item.parts.find(item => item.which === "");
 

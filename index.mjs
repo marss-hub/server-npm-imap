@@ -13,8 +13,8 @@ const config = {
     authTimeout: 3000,
   },
 };
- 
- //filter Classes in order of execution
+
+//filter Classes in order of execution
 const filtersArrs = [TicketSorterMailFilter, TicketCleanerMailFilter];
 
 const processor = new MailProcessor(config);

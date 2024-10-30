@@ -11,7 +11,8 @@ export class AbstractMailFilter {
    * @param {ImapSimple} connect An instance of ImapSimple
    */
   constructor(connect) {
-    if (!connect instanceof ImapSimple) throw new Error("ERROR: invalid connection object");
+    if (!connect instanceof ImapSimple)
+      throw new Error("ERROR: invalid connection object");
     this.#connect = connect;
   }
 
