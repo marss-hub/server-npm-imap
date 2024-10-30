@@ -47,7 +47,12 @@ export class TicketCleanerMailFilter extends AbstractMailFilter {
     return ticketsBoxesSet;
   }
 
-
+/**
+ * Return Set structure contain list of empty tickets-folders name or empty Set
+ * @param {ImapSimple} connection An instance of ImapSimple 
+ * @param {Set.<string>} ticketBoxesSet list of folders name with tickets-mark
+ * @returns {Set.<string>} list of empty tickets-folders name or empty Set
+ */
 async #getEmptyTicketBoxesListSet(connection, ticketBoxesSet) {
   const emptyTicketsBoxesSet = new Set();
     for (const box of ticketBoxesSet) {
@@ -58,6 +63,12 @@ async #getEmptyTicketBoxesListSet(connection, ticketBoxesSet) {
   
 }
 
+/**
+ * Checks if the box is empty
+ * @param {ImapSimple} connection An instance of ImapSimple  
+ * @param {string} box name of box
+ * @returns {boolean}
+ */
 async #boxIsEmpty(connection, box) {
   await connection.openBox(box);
     // See more https://www.php.net/manual/ru/function.imap-search.php about criteria parameter
@@ -73,6 +84,11 @@ async #boxIsEmpty(connection, box) {
   return messages.length === 0;
 }
 
+/**
+ * Deletes the mailboxes that are listed in the Set
+ * @param {ImapSimple} connection An instance of ImapSimple 
+ * @param {Set.<string>} boxesSet list of folders name for delete
+ */
 async #deleteBoxes(connection, boxesSet) {
   for (const box of boxesSet) {
     console.log("delete box : ", box)
