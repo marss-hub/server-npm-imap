@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "imap-simple": "^5.1.0",
     "mailparser": "^3.7.1"
   }

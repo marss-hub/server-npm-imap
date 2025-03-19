@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { CONFIGDATA } from "./configData.mjs";
 import { MailProcessor } from "./MailProcessor.mjs";
 import { TicketSorterMailFilter } from "./filters/TicketSorterMailFilter.mjs";
